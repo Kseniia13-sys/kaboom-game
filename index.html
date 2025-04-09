@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Kaboom Dice Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+      background-color: #f0f8ff;
+    }
+    h1 {
+      color: #333;
+    }
+    #board {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin: 20px auto;
+      max-width: 600px;
+    }
+    .cell {
+      padding: 15px;
+      border-radius: 10px;
+      background-color: #fff;
+      border: 2px solid #ccc;
+      min-height: 60px;
+    }
+    .active {
+      background-color: #ffe066;
+      border-color: #ffa500;
+    }
+    .player {
+      font-weight: bold;
+      font-size: 14px;
+      color: #0074d9;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    #message {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Kaboom! Dice Game 🎲</h1>
+  <div id="board"></div>
+  <button onclick="rollDice()">🎲 Roll the Dice</button>
+  <div id="message"></div>
+  <script>
+    const originalData = [
+      '+ I / walk with my friends tomorrow. (+3)',
+      '+ My friends / ride a bike next Sunday. (+3)',
+      '+ Sam and Suzy / fly to Italy next year. (+3)',
+      '+ Tom and I / write a book tomorrow. (+3)',
+      '+ She / be an actress in the future. (+3)',
+      '- They / cook salad tomorrow. (+3)',
+      '- Pony / travel to China. (+3)',
+      '- My dad / see a doctor next week. (+3)',
+      '- My mom and I / watch films. (+3)',
+      '- My teacher / send a letter tomorrow. (+3)',
+      '- I / buy a ticket next Monday. (+3)',
+      '+ We / play chess next week. (+3)',
+      'Kaboom! (-3)', 'Kaboom! (-3)', 'Kaboom! (-3)', 'Kaboom! (-3)'
+    ];
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    const boardData = shuffle([...originalData]);
+    const board = document.getElementById('board');
+    const message = document.getElementById('message');
+
+    const players = [
+      { name: "Player 1", position: 0, score: 0 },
+      { name: "Player 2", position: 0, score: 0 },
+      { name: "Player 3", position: 0, score: 0 },
+      { name: "Player 4", position: 0, score: 0 },
+      { name: "Player 5", position: 0, score: 0 },
+    ];
+
+    let currentPlayerIndex = 0;
+
+    function renderBoard() {
+      board.innerHTML = '';
+      boardData.forEach((text, i) => {
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+
+        players.forEach(p => {
+          if (p.position === i) {
+            const marker = document.createElement('div');
+            marker.className = 'player';
+            marker.textContent = p.name;
+            cell.appendChild(marker);
+          }
+        });
+
+        const content = document.createElement('div');
+        content.textContent = text.includes('Kaboom') ? '💥 Kaboom!' : text;
+        cell.appendChild(content);
+        board.appendChild(cell);
+      });
+    }
+
+    function rollDice() {
+      const player = players[currentPlayerIndex];
+      const roll = Math.floor(Math.random() * 6) + 1;
+      player.position += roll;
+      if (player.position >= boardData.length) player.position = boardData.length - 1;
+
+      const text = boardData[player.position];
+      if (text.includes('Kaboom')) {
+        player.score -= 3;
+        message.textContent = `💥 ${player.name} hit Kaboom! -3 points (Total: ${player.score})`;
+      } else {
+        player.score += 3;
+        message.textContent = `✅ ${player.name} earned +3 points (Total: ${player.score})`;
+      }
+
+      currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+      renderBoard();
+    }
+
+    renderBoard();
+  </script>
+</body>
+</html>
